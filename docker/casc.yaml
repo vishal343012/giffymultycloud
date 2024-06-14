@@ -1,0 +1,128 @@
+ jenkins:
+  clouds:
+      - computeEngine:
+          cloudName: jenkins-build
+          projectId: jenkins-beanstalkapp
+          instanceCapStr: 2
+          credentialsId: jenkins-beanstalkapp
+          noDelayProvisioning: false
+          configurations:
+            - namePrefix:         jenkins-agent-image
+              description:        Jenkins agent
+              launchTimeoutSecondsStr: 6000
+              retentionTimeMinutesStr: 300
+              mode:               EXCLUSIVE
+              labelString:        jenkins-agent
+              numExecutorsStr:    1
+              runAsUser:          jenkins
+              remoteFs:           /tmp
+              javaExecPath:       "java"
+              oneShot:            true
+              createSnapshot:     false
+              region:             "https://www.googleapis.com/compute/v1/projects/jenkins-beanstalkapp/regions/asia-south1"
+              zone:               "https://www.googleapis.com/compute/v1/projects/jenkins-beanstalkapp/zones/asia-south1-a"
+              template:           '' # tried not setting, added when 'saved' in UI
+              machineType:        "https://www.googleapis.com/compute/v1/projects/jenkins-beanstalkapp/zones/asia-south1-a/machineTypes/n1-standard-2"
+              preemptible:        false
+              minCpuPlatform:     '' # tried not setting, added when 'saved' in UI
+              startupScript:      '' # tried not setting, added when 'saved' in UI
+              networkConfiguration:
+                autofilled:
+                  network:        default
+                  subnetwork:     default
+              networkTags:        jenkins-agent
+              networkInterfaceIpStackMode:
+                singleStack:
+                  externalIPV4Address:    true
+              useInternalAddress: false
+              bootDiskSourceImageProject: jenkins-beanstalkapp
+              bootDiskSourceImageName: "https://www.googleapis.com/compute/v1/projects/jenkins-beanstalkapp/global/images/jenkins-agent-1716104368"
+              bootDiskType:       "https://www.googleapis.com/compute/v1/projects/jenkins-beanstalkapp/zones/asia-south1-a/diskTypes/pd-standard"
+              bootDiskSizeGbStr:  50
+              bootDiskAutoDelete: true
+              serviceAccountEmail: 'vs-167@jenkins-beanstalkapp.iam.gserviceaccount.com'
+  authorizationStrategy:
+    roleBased:
+      roles:
+        global:
+          - name: "admin"
+            description: "Jenkins administrators"
+            permissions:
+              - "Overall/Administer"
+            entries:
+              - user: "admin"
+          - name: "readonly"
+            description: "Read-only users"
+            permissions:
+              - "Overall/Read"
+              - "Job/Read"
+            entries:
+              - user: "anonymous"
+        items:
+          - name: "FolderA"
+            description: "Jobs in Folder A, but not the folder itself"
+            pattern: "A/.*"
+            permissions:
+              - "Job/Configure"
+              - "Job/Build"
+              - "Job/Delete"
+            entries:
+              - user: "user1"
+              - user: "user2"
+          - name: "FolderB"
+            description: "Jobs in Folder B, but not the folder itself"
+            pattern: "B.*"
+            permissions:
+              - "Job/Configure"
+              - "Job/Build"
+            entries:
+              - user: "user2"
+        agents:
+          - name: "Agent1"
+            description: "Agent 1"
+            pattern: "agent1"
+            permissions:
+              - "Agent/Build"
+            entries:
+              - user: "user1"
+  numExecutors: 0
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "Password123#"
+        - id: "vishal"
+          password: "vishal7667&^$"
+        - id: "kajal"
+          password: "kajal99313^%^&"
+        - id: "jude"
+          password: "jude2332**&%"
+        - id: "user_hashed"
+          # password is password
+          password: "#jbcrypt:$2a$10$3bnAsorIxhl9kTYvNHa2hOJQwPzwT4bv9Vs.9KdXkh9ySANjJKm5u"
+unclassified:
+  location:
+    url: http://localhost:8080/
+  scmGit:
+    addGitTagAction: false
+    allowSecondFetch: false
+    createAccountBasedOnEmail: false
+    disableGitToolChooser: false
+    globalConfigEmail: "jenkins-user@example.com"
+    globalConfigName: "jenkins-user"
+    hideCredentials: false
+    showEntireCommitSummaryInChanges: true
+    useExistingAccountWithSameEmail: false
+configuration-as-code:
+  deprecated: warn
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - googleRobotAccessTokenCredentials:
+              id: jenkins-beanstalkapp
+              projectId: jenkins-beanstalkapp
+              serviceAccountConfig:
+                jsonServiceAccountConfig:
+                  accessToken::"ya29.c.c0AY_VpZgvDdqmgWmeT6LcE-lAbFcSPhKnRhod6uLp-gYW7XCSkCK2y5bwwL2V4WZHgR8qrMtPeX9hcSwhzC8qLJNqnEzI7MKs-ORubPLTZ1txDtE2OzHri4OagI6Xv-hRW_8Y0oLY1tiooVEyjDyyhTor0onG2REMHhj2FZnEvDAlF8lkHXbQJ9mLUdRgHX3bTbq2YTEeI-EHCGzEF9Yc6kUMrfn9dwcNTu-erPtweqbe4lrnbTIORAW_9nHP3i3FPOwmXrN8gFBiutOXI0dJuoI_HwPD5oq6ZlRzMJoBoNYKhER-BHqTmhSauQXCOl4hfGCsmRgfKGbEPkMXIlYOAQB33-LwdvOvw_CfnzGlOQw3GziLJM-q2mIgSXxtKVcmgPHpN1JH1J8VEDZFTvHr7q6KgvDH_FnLVcMgSmwjsBzLEsHD8BFRvuc3K4vj2ShLV3LTYlU0hSo5hd-WNlTaFHlJoiP_LTJAbOr23BuYoEf_AHqjTnDmJaMgiM0iU2E8IyRF-o4qs8V4CV8ns3uL3CIv7oFwI1UMdCiYvXMllHs2d_C8f66PnWl_G7Pjar4JEVAiBfTJrNP0-dzbIKgWBjOD2ZWgXyJBmw-eLjgMtMyunLWlU8NXlosyxSoT644DY5uY9sWyWf8f5qfgg2n0wsqr_FSo4dY8I92lyY8kUY496YBUWR-sBqeXROeqUU5fWMudFWlx4YfVVFFbs1vgipbVvZ1fRJ3kiuSZxQ6F-dqR0cpZJY6zyMaI_cWw_MgfhWtgXOltmmta5z-Jyi7q804smh6y-262tp4huSBctjqpfvUOoBwBa1q8e85e8fivyX2Q17YotSsiw7hd2aRia9evwUMqnbi90i72mSUYubyRk3UIS77YUx3tU64_WiXcoJnv54uORcs4qi_jjis5tQ6x8w5Qt0-IeXUBi0ihmmj5uqQ-9gUj5u_FFmlMqBVwzgjJ4ZXQrB-jn_9SeFign1--bcuiVejghV0Rh1ugp820n5gmJXhZq5u"
